@@ -21,10 +21,10 @@ public class Principal {
     private final String API_KEY = "&apikey=6585022c";
     private List<DadosSerie> dadosSeries = new ArrayList<>();
     private SerieRepository repositorio;
-    private List<Serie> series =new ArrayList<>();
+    private List<Serie> series = new ArrayList<>();
 
     public Principal(SerieRepository repositorio) {
-        this.repositorio=repositorio;
+        this.repositorio = repositorio;
     }
 
     public void exibeMenu() {
@@ -34,6 +34,7 @@ public class Principal {
                     1 - Buscar séries
                     2 - Buscar episódios
                     3- Listar séries buscadas
+                    4 - Buscar série por titulo
                     0 - Sair                             
                     """;
 
@@ -51,6 +52,9 @@ public class Principal {
                 case 3:
                     listarSeriesBuscadas();
                     break;
+                case 4:
+                    buscarSeriePorTitulo();
+                    break;
                 case 0:
                     System.out.println("Saindo...");
                     break;
@@ -60,12 +64,6 @@ public class Principal {
         }
     }
 
-    private void listarSeriesBuscadas() {
-        series = repositorio.findAll();
-        series.stream()
-                .sorted(Comparator.comparing(Serie::getGenero))
-                .forEach(System.out::println);
-    }
 
     private void buscarSerieWeb() {
         //Busca no MDB e salva no Banco
@@ -89,10 +87,8 @@ public class Principal {
         System.out.println("Escolha uma série pelo nome : ");
         String nomeSerie = leitura.nextLine();
 
-        Optional<Serie> serie = series.stream()
-                .filter(s -> s.getTitulo().
-                        toLowerCase().contains(nomeSerie.toLowerCase()))
-                .findFirst();
+        Optional<Serie> serie = repositorio.findByTituloContainingIgnoreCase(nomeSerie);
+
 
         if (serie.isPresent()) {
 
@@ -109,15 +105,35 @@ public class Principal {
 
 
             List<Episodio> episodios = temporadas.stream()
-                    .flatMap(d -> d.episodios().stream())
-                    .map(e-> new Episodio(e.numero(),e))
-                            .collect(Collectors.toList());
+                    .flatMap(d -> d.episodios().stream()
+                            .map(e -> new Episodio(d.numero(), e)))
+                    .collect(Collectors.toList());
 
-                serieEncontrada.setEpisodios(episodios);
-                repositorio.save(serieEncontrada);
+            serieEncontrada.setEpisodios(episodios);
+            repositorio.save(serieEncontrada);
 
-        }else {
+        } else {
             System.out.println("Série não encontrada!! ='( ");
         }
     }
+
+    private void listarSeriesBuscadas() {
+        series = repositorio.findAll();
+        series.stream()
+                .sorted(Comparator.comparing(Serie::getGenero))
+                .forEach(System.out::println);
+    }
+
+    private void buscarSeriePorTitulo() {
+        System.out.println("Escolha uma série pelo nome : ");
+        String nomeSerie = leitura.nextLine();
+        Optional<Serie> serieBuscada = repositorio.findByTituloContainingIgnoreCase(nomeSerie);
+
+        if (serieBuscada.isPresent()) {
+            System.out.println("Dados da série : " + serieBuscada.get());
+        } else {
+            System.out.println("Série não encotrada!");
+        }
+    }
+
 }

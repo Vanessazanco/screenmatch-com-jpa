@@ -13,6 +13,7 @@ public class Serie {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
+
     @Column(unique = true)
     private String titulo;
     private Integer totalTemporadas;
@@ -23,7 +24,7 @@ public class Serie {
     private String poster;
     private String sinopse;
 
-    @OneToMany(mappedBy ="serie")
+    @OneToMany(mappedBy ="serie",cascade = CascadeType.ALL,fetch = FetchType.EAGER)
     private List<Episodio> episodios = new ArrayList<>();
 
     public Serie(){
@@ -52,6 +53,7 @@ public class Serie {
     }
 
     public void setEpisodios(List<Episodio> episodios) {
+        episodios.forEach(ep -> ep.setSerie(this));
         this.episodios = episodios;
     }
 
@@ -114,12 +116,13 @@ public class Serie {
     @Override
     public String toString() {
         return "Serie: " + titulo +
-                ", Genero=" + genero +
-                ", Temporadas=" + totalTemporadas +
-                ", Avaliacao=" + avaliacao +
-                ", Atores='" + atores +
-                ", Poster='" + poster +
-                ", Sinopse='" + sinopse ;
+                ", Genero =" + genero +
+                ", Temporadas =" + totalTemporadas +
+                ", Avaliacao =" + avaliacao +
+                ", Atores ='" + atores +
+                ", Poster ='" + poster +
+                ", Sinopse ='" + sinopse +
+                ", Episodios ='" + episodios ;
     }
 }
 
