@@ -14,6 +14,7 @@ public class Serie {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
+
     @Column(unique = true)
     private String titulo;
     private Integer totalTemporadas;
@@ -33,9 +34,12 @@ public class Serie {
     public Serie(DadosSerie dadosSerie) {
         this.titulo = dadosSerie.titulo();
         this.totalTemporadas = dadosSerie.totalTemporadas();
-        this.avaliacao = OptionalDouble.of(Double.valueOf(dadosSerie.avaliacao())).orElse(0);
+
+        this.avaliacao = dadosSerie.avaliacao() != null ?
+                OptionalDouble.of(Double.valueOf(dadosSerie.avaliacao())).orElse(0)
+                : 0.0;
         this.atores = dadosSerie.atores();
-        this.genero = Categoria.fromString(dadosSerie.genero().split(",")[0].trim());
+        this.genero = dadosSerie.genero() != null ? Categoria.fromString(dadosSerie.genero().split(",")[0].trim()) : Categoria.NAOLISTADA;
         this.poster = dadosSerie.poster();
         this.sinopse= dadosSerie.sinopse();//this.sinopse = ConsultaChatGPT.obterTraducao(dadosSerie.sinopse()).trim();
     }
